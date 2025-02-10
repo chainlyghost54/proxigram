@@ -3,16 +3,12 @@ FROM node:18-alpine AS build-env
 WORKDIR /app
 COPY package.json ./
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
-RUN pnpm install
+RUN npm install
 
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm run build
+RUN npm run build
 
 FROM gcr.io/distroless/nodejs18-debian11:nonroot
 
@@ -25,4 +21,4 @@ COPY --from=build-env /app/.next /app/.next
 COPY --from=build-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/public /app/public
 
-CMD ["./node_modules/next/dist/bin/next", "start"]
+CMD ["node", "node_modules/next/dist/bin/next", "start"]
